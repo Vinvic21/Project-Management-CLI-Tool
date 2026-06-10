@@ -1,3 +1,4 @@
+from utils.validation import validate_status
 class Task:
     ID_counter = 1
     def __init__(self, title, status= "pending", assigned_to= None):
@@ -10,9 +11,7 @@ class Task:
         return self._status
     @status.setter
     def status(self, value):
-        if value not in ("pending", "completed"):
-            raise ValueError("Innvalid status")
-        self._status = value
+        self._status = validate_status(value)
     def mark_complete(self):
         self.status = "completed"
     def assign_user(self,user_name):
