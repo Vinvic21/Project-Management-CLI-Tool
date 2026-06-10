@@ -1,10 +1,12 @@
 from utils.validation import validate_due_date
 class Project:
     ID_counter = 1
-    def __init__(self, title, description,due_date):
+    def __init__(self, title, description,due_date, user_id):
+        self.id = self.ID_counter
         self.title = title
         self.description = description
         self.due_date = due_date
+        self.user_id = user_id
         Project.ID_counter += 1
         self.tasks= []
     

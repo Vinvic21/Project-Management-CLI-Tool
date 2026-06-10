@@ -1,10 +1,12 @@
 from utils.validation import validate_status
 class Task:
     ID_counter = 1
-    def __init__(self, title, status= "pending", assigned_to= None):
+    def __init__(self, title, status= "pending", assigned_to= None, project_id= None):
+        self.id = self.ID_counter
         self.title = title
         self.status = status
         self.assigned_to = assigned_to
+        self.project_id = project_id
         Task.ID_counter += 1
     @property
     def status(self):

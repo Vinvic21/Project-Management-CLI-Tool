@@ -11,11 +11,39 @@ def add_user(args):
     save_data("user.json", users)
     print(f"{new_user.name} added to list")
 
+def add_projects(args):
+    projects = load_json("project.json")
+    new_project = Project(args.title, args.description, args.due_date, args.user_id )
+    projects.append({
+        "id":new_project.id,
+        "title":new_project.title,
+        "description":new_project.description,
+        "due_date":str(new_project.due_date),
+        "user_id":new_project.user_id
+
+    })
+    save_data("project.json", projects)
+    print(f"{new_project.title} added to projects")
+
+def add_task(args):
+    tasks = load_json("task.json")
+    new_task = Task(args.title, args.status, args.assigned_to, args.project_id)
+    tasks.append({
+        "id":new_task.id,
+        "title":new_task.title,
+        "status":new_task.status,
+        "assigned_to":new_task.assigned_to,
+        "project_id":new_task.project_id
+
+    })
+    save_data("task.json", tasks)
+    print(f"{new_task.title} added to list")
+
 
 def list_projects(args):
-    projects = load_json("projects.json")
+    projects = load_json("project.json")
     for project in projects:
-        print(f"{project['id']}: {project['title']} (Due {project['due_date']})")
+        print(f"{project['id']}: {project['title']} {project['description']}(Due {project['due_date']})")
 
 def complete_task(args):
     tasks = load_json("task.json")
@@ -35,6 +63,21 @@ def main():
     add_parser.add_argument("name", help="Add name")
     add_parser.add_argument("email", help="Add email")
     add_parser.set_defaults(func = add_user)
+
+    project_add_parser = subparsers.add_parser("add-project", help="Add a new project")
+    project_add_parser.add_argument("title", help="Add project title")
+    project_add_parser.add_argument("description", help="Add project description")
+    project_add_parser.add_argument("due_date", help="Add project due date")
+    project_add_parser.add_argument("user_id", help="Add project user_id")
+    project_add_parser.set_defaults(func = add_projects)
+
+    task_add_parser = subparsers.add_parser("add-task", help="Add a new task")
+    task_add_parser.add_argument("title", help="Add task title")
+    task_add_parser.add_argument("status", help="Add status description")
+    task_add_parser.add_argument("assigned_to", help="Task assigned to")
+    task_add_parser.add_argument("project_id", help="Add task project_id")
+    task_add_parser.set_defaults(func = add_task)
+
 
     proj_parser = subparsers.add_parser("list-projects", help="List available projects")
    
