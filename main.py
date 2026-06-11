@@ -113,7 +113,48 @@ def list_projects(args):
         )
     
     console.print(table)
-    
+def edit_user(args):
+    users = load_json("user.json")
+    for user in users:
+        if str(user["id"]) == str(args.id):
+            if args.name:
+                user["name"] = args.name
+            if args.email:
+                user["email"] = args.email
+            save_data("user.json", users)
+            console.print(f"[green]User {args.id} updated successfully.")
+            return
+    console.print(f"[red]User with ID {args.id} not found.")
+def edit_project(args):
+    projects = load_json("project.json")
+    for project in projects:
+        if str(project["id"]) == str(args.id):
+            if args.title:
+                project["title"] = args.title
+            if args.description:
+                project["description"] = args.description
+            if args.due_date:
+                project["due_date"] = args.due_date
+            save_data("project.json", projects)
+            console.print(f"[green]Project {args.id} updated successfully.")
+            return
+    console.print(f"[red]Project with ID {args.id} not found.")
+def edit_task(args):    
+    tasks = load_json("task.json")
+    for task in tasks:
+        if str(task["id"]) == str(args.id):
+            if args.title:
+                task["title"] = args.title
+            if args.status:
+                task["status"] = args.status
+            if args.assigned_to:
+                task["assigned_to"] = args.assigned_to
+            if args.project_id:
+                task["project_id"] = args.project_id
+            save_data("task.json", tasks)
+            console.print(f"[green]Task {args.id} updated successfully.")
+            return
+    console.print(f"[red]Task with ID {args.id} not found.")
 def complete_task(args):
     tasks = load_json("task.json")
     for task in tasks:
@@ -155,6 +196,26 @@ def main():
     list_tasks_parser.add_argument("project_id", help="Project ID to list tasks for")
     list_tasks_parser.set_defaults(func=list_tasks)
 
+    edit_user_parser = subparsers.add_parser("edit-user", help="Edit user details")
+    edit_user_parser.add_argument("id", help="User ID to edit")
+    edit_user_parser.add_argument("--name", help="New name for the user")
+    edit_user_parser.add_argument("--email", help="New email for the user")
+    edit_user_parser.set_defaults(func=edit_user)
+
+    edit_project_parser = subparsers.add_parser("edit-project", help="Edit project details")
+    edit_project_parser.add_argument("id", help="Project ID to edit")
+    edit_project_parser.add_argument("--title", help="New title for the project")
+    edit_project_parser.add_argument("--description", help="New description for the project")
+    edit_project_parser.add_argument("--due_date", help="New due date for the project")
+    edit_project_parser.set_defaults(func=edit_project)
+
+    edit_task_parser = subparsers.add_parser("edit-task", help="Edit task details")
+    edit_task_parser.add_argument("id", help="Task ID to edit")
+    edit_task_parser.add_argument("--title", help="New title for the task")
+    edit_task_parser.add_argument("--status", help="New status for the task")
+    edit_task_parser.add_argument("--assigned_to", help="New assignee for the task")
+    edit_task_parser.add_argument("--project_id", help="New project ID for the task")
+    edit_task_parser.set_defaults(func=edit_task)
 
     proj_parser = subparsers.add_parser("list-projects", help="List available projects")
     proj_parser.add_argument("--user_id", help="Filter projects by user ID", default=None)
