@@ -64,10 +64,12 @@ def list_users(args):
     console.print(table)
 def list_tasks(args):
     tasks = load_json("task.json")
-    filtered = [task for task in tasks if str(task["project_id"]) == str(args.project_id)]
+   
+    if args.project_id:
+        tasks = [task for task in tasks if str(task["project_id"]) == str(args.project_id)]
 
-    if not filtered:
-        console.print(f"[red] No task found for project")
+    if not tasks:
+        console.print("[red] No tasks found")
         return
     
     table = Table(title= f"Tasks for Project {args.project_id}")
@@ -75,21 +77,23 @@ def list_tasks(args):
     table.add_column("Title", style="green")
     table.add_column("Status", style="green")
     table.add_column("assigned_to", style="green")
+    table.add_column("Project ID", style="green")
     
-    for task in filtered:
+    for task in tasks:
         status_color = "green" if task["status"] == "completed" else "red" 
         
         table.add_row(
             str(task["id"]),
             task["title"],
             f"[{status_color}]{task['status']}",
-            str(task["assigned_to"] or "Unassigned")
+            str(task["assigned_to"] or "Unassigned"),
+            str(task["project_id"])
         )
     console.print(table)
 
 def list_projects(args):
     projects = load_json("project.json")
-    if args.user_id:
+    if args.user_id :
         projects = [project for project in projects if str(project["user_id"]) == str(args.user_id)]
 
     if not projects:
@@ -193,7 +197,8 @@ def main():
     user_parser.set_defaults(func=list_users)
 
     list_tasks_parser = subparsers.add_parser("list-tasks", help="List tasks for a project")
-    list_tasks_parser.add_argument("project_id", help="Project ID to list tasks for")
+    list_tasks_parser.add_argument("--project_id", type=int, help="Project ID to list tasks for", default=None)
+
     list_tasks_parser.set_defaults(func=list_tasks)
 
     edit_user_parser = subparsers.add_parser("edit-user", help="Edit user details")
