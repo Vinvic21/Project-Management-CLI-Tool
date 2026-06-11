@@ -31,6 +31,7 @@ def add_projects(args):
 
 def add_task(args):
     tasks = load_json("task.json")
+    Task.ID_counter = max([t["id"] for t in tasks], default=0) + 1 
     new_task = Task(args.title, args.status, args.assigned_to, args.project_id)
     tasks.append({
         "id":new_task.id,
@@ -61,11 +62,39 @@ def list_users(args):
         )
     
     console.print(table)
+def list_tasks(args):
+    tasks = load_json("task.json")
+    filtered = [task for task in tasks if str(task["project_id"]) == str(args.project_id)]
+
+    if not filtered:
+        console.print(f"[red] No task found for project")
+        return
+    
+    table = Table(title= f"Tasks for Project {args.project_id}")
+    table.add_column("ID", justify= "right")
+    table.add_column("Title", style="green")
+    table.add_column("Status", style="green")
+    table.add_column("assigned_to", style="green")
+    
+    for task in filtered:
+        status_color = "green" if task["status"] == "completed" else "red" 
+        
+        table.add_row(
+            str(task["id"]),
+            task["title"],
+            f"[{status_color}]{task['status']}",
+            str(task["assigned_to"] or "Unassigned")
+        )
+    console.print(table)
 
 def list_projects(args):
     projects = load_json("project.json")
+    if args.user_id:
+        projects = [project for project in projects if str(project["user_id"]) == str(args.user_id)]
+
     if not projects:
         console.print("[red] No projects found")
+        return
     
     table = Table(title = "Projects")
     table.add_column("id", justify="right")
@@ -122,8 +151,13 @@ def main():
     user_parser = subparsers.add_parser("list-users", help="List available users")
     user_parser.set_defaults(func=list_users)
 
+    list_tasks_parser = subparsers.add_parser("list-tasks", help="List tasks for a project")
+    list_tasks_parser.add_argument("project_id", help="Project ID to list tasks for")
+    list_tasks_parser.set_defaults(func=list_tasks)
+
 
     proj_parser = subparsers.add_parser("list-projects", help="List available projects")
+    proj_parser.add_argument("--user_id", help="Filter projects by user ID", default=None)
     proj_parser.set_defaults(func=list_projects)
 
     task_parser = subparsers.add_parser("complete-task", help = "Completed projects")
