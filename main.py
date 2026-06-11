@@ -3,13 +3,17 @@ from models.project import Project
 from models.task import Task
 from models.user import User
 from utils.IO import save_data, load_json
+from rich.console import Console
+from rich.table import Table
 
+console = Console()
 def add_user(args):
     users = load_json("user.json")
+    User.Id_counter = max([u["id"] for u in users], default=0) + 1
     new_user = User(args.name, args.email)
     users.append({"id": new_user.id, "name": new_user.name, "email": new_user.email})
     save_data("user.json", users)
-    print(f"{new_user.name} added to list")
+    console.print(f"[green]{new_user.name} added to list")
 
 def add_projects(args):
     projects = load_json("project.json")
@@ -23,7 +27,7 @@ def add_projects(args):
 
     })
     save_data("project.json", projects)
-    print(f"{new_project.title} added to projects")
+    console.print(f"[green]{new_project.title} added to projects")
 
 def add_task(args):
     tasks = load_json("task.json")
@@ -38,19 +42,55 @@ def add_task(args):
     })
     save_data("task.json", tasks)
     print(f"{new_task.title} added to list")
+def list_users(args):
+    users = load_json("user.json")
+    if not users:
+        console.print("[red] No user Found")
+    
+    table = Table(title= "Users")
+    table.add_column("ID", justify= "right")
+    table.add_column("Name", style= "green")
+    table.add_column("Email", style="green")
 
+    for user in users:
+        table.add_row(
+            str(user["id"]),
+            user["name"],
+            user["email"]
+        
+        )
+    
+    console.print(table)
 
 def list_projects(args):
     projects = load_json("project.json")
-    for project in projects:
-        print(f"{project['id']}: {project['title']} {project['description']}(Due {project['due_date']})")
+    if not projects:
+        console.print("[red] No projects found")
+    
+    table = Table(title = "Projects")
+    table.add_column("id", justify="right")
+    table.add_column("title", style="green")
+    table.add_column("description", style="green")
+    table.add_column("due_date", style="green")
+    table.add_column("user_id", style= "green")
 
+    for project in projects:
+        table.add_row(
+            str(project["id"]),
+            project["title"],
+            project["description"],
+            project["due_date"],
+            str(project["user_id"])
+        )
+    
+    console.print(table)
+    
 def complete_task(args):
     tasks = load_json("task.json")
     for task in tasks:
         if task["id"] ==int(args.task_id):
             task["status"] = "completed"
-            print(f"{task['title']} marked as complete")
+            console.print(f"[green]{task['title']} marked as complete")
     save_data("task.json", tasks)
 
 
@@ -79,8 +119,11 @@ def main():
     task_add_parser.set_defaults(func = add_task)
 
 
+    user_parser = subparsers.add_parser("list-users", help="List available users")
+    user_parser.set_defaults(func=list_users)
+
+
     proj_parser = subparsers.add_parser("list-projects", help="List available projects")
-   
     proj_parser.set_defaults(func=list_projects)
 
     task_parser = subparsers.add_parser("complete-task", help = "Completed projects")

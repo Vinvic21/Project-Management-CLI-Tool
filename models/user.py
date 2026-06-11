@@ -4,7 +4,7 @@ class User:
     def __init__(self, name, email):
         self.id = User.Id_counter
         self.name = name
-        self.email= email
+        self.email = email
         User.Id_counter += 1 
     @property
     def email(self):
